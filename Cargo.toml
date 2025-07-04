@@ -1,0 +1,9 @@
+[workspace]
+members = [
+    "crates/idp-core",
+    "crates/idp-cli",
+]
+
+[workspace.dependencies]
+# Central place for common dependencies
+serde = { version = "1.0", features = ["derive"] }

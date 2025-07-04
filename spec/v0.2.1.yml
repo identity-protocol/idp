@@ -1,0 +1,69 @@
+# Identity Protocol Specification v0.2.1
+# The canonical data structure for a sovereign identity.
+# This version adds a 'system' section for keys and refines contracts/reputation.
+
+identity:
+  id: string # e.g., "idp:key:sha256-..." A unique, URI-style identifier derived from the root public key.
+  version: string # e.g., "0.2.1"
+  schema_url: string # e.g., "https://idp.org/schemas/v0.2.1"
+  created_at: string # ISO 8601 timestamp (YYYY-MM-DDTHH:MM:SSZ)
+  updated_at: string # ISO 8601 timestamp
+
+system: # CRITICAL ADDITION: Holds the cryptographic state of the identity.
+  public_keys:
+    - key_id: string # e.g., "root-key-01"
+      algorithm: string # e.g., "Ed25519"
+      value: string # The public key, base64 encoded.
+      status: string # "active", "revoked"
+    - key_id: string # e.g., "pq-key-01"
+      algorithm: string # e.g., "CRYSTALS-Dilithium-3"
+      value: string
+      status: string # "active", "revoked"
+
+core:
+  name: string
+  bio: string
+  # ... other core, relatively static data like 'country_of_residence' etc.
+
+credentials:
+  - claim: string # A parseable claim, e.g., "skill:rust:expert", "degree:cs:mit", "license:driver:kenya"
+    issued_by: string # Can be "self" or another IDP ID (e.g., "idp:key:sha256-mit...")
+    issued_at: string # ISO 8601 timestamp
+    expires_at: string # Optional: ISO 8601 timestamp
+    proof: string # Link to a proof_id in the proofs section below.
+
+proofs:
+  - proof_id: string
+    type: string # e.g., "signature"
+    claim_hash: string # e.g., "sha256:abc123..." Hash of the credential claim being proven.
+    signed_by: # The identity of the signer.
+      idp_id: string # The ID of the signing IDP.
+      key_id: string # The specific key_id from the signer's IDP used for this signature.
+    signature: # Hybrid, quantum-resistant signature object
+      - algorithm: string # e.g., "Ed25519"
+        value: string # The classical signature.
+      - algorithm: string # e.g., "CRYSTALS-Dilithium-3"
+        value: string # The post-quantum signature.
+
+contracts:
+  - contract_id: string
+    status: string # e.g., "active", "completed", "failed", "in_dispute"
+    parties: [string] # List of IDP IDs involved.
+    terms: string # Human-readable terms of the contract.
+    consequence: # REFINED: Machine-readable consequences.
+      on_success: string # e.g., "parties[0].reputation.dev_score +5; parties[1].reputation.client_score +5"
+      on_failure: string # e.g., "parties[0].reputation.dev_score -10"
+
+reputation:
+  - score_name: string # e.g., "dev_score", "client_score"
+    value: integer
+    history: # REFINED: A structured event log.
+      - event: string # e.g., "completed contract_webdev_001"
+        change: integer # e.g., +5
+        timestamp: string # ISO 8601 timestamp
+
+consent:
+  - granted_to: string # The IDP ID of the app/service.
+    fields: [string] # e.g., ["core.name", "credentials.[claim=skill:rust:expert]"]
+    expires_at: string # ISO 8601 timestamp
+    purpose: string
