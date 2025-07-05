@@ -1,0 +1,1 @@
+/data/data/com.termux/files/home/identity-protocol/idp/target/debug/idp-cli: /data/data/com.termux/files/home/identity-protocol/idp/crates/idp-cli/src/main.rs /data/data/com.termux/files/home/identity-protocol/idp/crates/idp-core/src/crypto.rs /data/data/com.termux/files/home/identity-protocol/idp/crates/idp-core/src/lib.rs
